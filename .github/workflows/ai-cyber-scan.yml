@@ -1,0 +1,36 @@
+name: AI Cyber Scan
+
+on:
+  schedule:
+    - cron: "17 5 * * 0"   # Sundays 05:17 UTC
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Look-back window (days)"
+        default: "7"
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ai-cyber-agents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python tests/test_pipeline.py
+      - name: Run scan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python run.py --days "${{ github.event.inputs.days || '7' }}" --out reports
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-cyber-report
+          path: ai-cyber-agents/reports/
