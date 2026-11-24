@@ -1,0 +1,787 @@
+<title>מסלול GRC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: audit-binder — sticky header, a module index on the right (RTL), the working sheet on the left; mobile collapses the index into a chip row. */
+:root{
+  --bg:#f3f5f6; --surface:#ffffff; --sunk:#e8eced; --ink:#14232b; --muted:#56666f; --line:#d3dade;
+  --accent:#0d6b62; --accent-soft:#d8ece9; --stamp:#b5541c; --stamp-soft:#f6e4d8;
+  --ok:#1f7a3d; --ok-soft:#dcefe2; --bad:#b3261e; --bad-soft:#f7dedc; --warn:#9a6700; --warn-soft:#f7ecd0;
+  --r1:#2e8b57; --r2:#8fb339; --r3:#e0b000; --r4:#e07a1f; --r5:#c62828;
+  --f-display:"Rubik","Assistant",system-ui,sans-serif; --f-body:"Assistant","Segoe UI",Arial,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1719; --surface:#162125; --sunk:#1d2a2f; --ink:#e3ebee; --muted:#9aabb2; --line:#2b3a40;
+  --accent:#4fc1b3; --accent-soft:#163a37; --stamp:#f09a62; --stamp-soft:#3a2518;
+  --ok:#6fd08f; --ok-soft:#173523; --bad:#f08a82; --bad-soft:#3d1c1a; --warn:#e8c25a; --warn-soft:#3a3016; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1719; --surface:#162125; --sunk:#1d2a2f; --ink:#e3ebee; --muted:#9aabb2; --line:#2b3a40;
+  --accent:#4fc1b3; --accent-soft:#163a37; --stamp:#f09a62; --stamp-soft:#3a2518;
+  --ok:#6fd08f; --ok-soft:#173523; --bad:#f08a82; --bad-soft:#3d1c1a; --warn:#e8c25a; --warn-soft:#3a3016; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:17px;line-height:1.65}
+*{box-sizing:border-box}
+#app{direction:rtl;text-align:right}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:1.25rem;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.seal{width:30px;height:30px;border:2px solid var(--stamp);border-radius:50%;display:grid;place-items:center;color:var(--stamp);font-size:.62rem;font-family:var(--f-mono);transform:rotate(-12deg)}
+.overall{margin-inline-start:auto;display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted)}
+.bar{width:140px;height:8px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:28px;
+  padding-block:24px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav.index{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);align-self:start;display:flex;flex-direction:column;gap:4px}
+.nav-label{font-size:.75rem;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:14px 10px 4px}
+.nav-label:first-child{margin-top:0}
+nav.index a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;font-size:.97rem}
+nav.index a:hover{background:var(--sunk)}
+nav.index a.on{background:var(--accent-soft);color:var(--accent)}
+.code{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);min-width:30px}
+nav.index a.on .code{color:var(--accent)}
+.pct{margin-inline-start:auto;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.pct.done{color:var(--ok)}
+main{min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.25;margin:0}
+h1{font-size:2rem;font-weight:700}
+h2{font-size:1.45rem;font-weight:600}
+h3{font-size:1.12rem;font-weight:600}
+p{margin:0}
+.lead{color:var(--muted);font-size:1.08rem;max-width:68ch}
+.stack{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--f-mono);font-size:.76rem;letter-spacing:.06em;color:var(--stamp)}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{font:inherit;font-weight:600;background:none;border:0;padding:10px 14px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--stamp);outline-offset:2px}
+.lesson{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+.lesson-head{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.lesson-head .num{font-family:var(--f-mono);color:var(--stamp);font-size:.85rem}
+.body{display:flex;flex-direction:column;gap:12px;margin-top:12px;max-width:72ch}
+.body ul,.body ol{margin:0;padding-inline-start:22px;display:flex;flex-direction:column;gap:6px}
+.body strong{color:var(--ink)}
+.mark{display:flex;justify-content:flex-start;margin-top:16px}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn:hover{background:var(--sunk)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.note{background:var(--stamp-soft);border-inline-start:4px solid var(--stamp);padding:12px 14px;border-radius:6px;font-size:.95rem}
+.tip{background:var(--accent-soft);border-inline-start:4px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:.95rem}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.93rem;background:var(--surface)}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{background:var(--sunk);font-weight:700;white-space:nowrap}
+td code,.mono{font-family:var(--f-mono);font-size:.82rem;direction:ltr;unicode-bidi:isolate}
+tr:last-child td{border-bottom:0}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.flow span{background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:.9rem;font-weight:600}
+.flow b{color:var(--muted);font-weight:400}
+/* home */
+.hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;align-items:center}
+.ring{justify-self:center;position:relative;width:170px;height:170px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .lbl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--f-display)}
+.ring .lbl b{font-size:2.1rem;display:block;line-height:1;font-variant-numeric:tabular-nums}
+.ring .lbl small{color:var(--muted);font-family:var(--f-body);font-size:.85rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.mcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink)}
+.mcard:hover{border-color:var(--accent)}
+.mcard .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mcard p{color:var(--muted);font-size:.93rem;flex:1}
+.chip{font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.go{background:var(--warn-soft);color:var(--warn)}
+.mini{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.mini>i{display:block;height:100%;background:var(--accent)}
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:12px}
+.q .qn{font-family:var(--f-mono);font-size:.8rem;color:var(--stamp)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;text-align:right;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ink)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
+.explain{font-size:.95rem;padding:10px 14px;border-radius:6px;background:var(--sunk)}
+.score{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 22px}
+.score b{font-family:var(--f-display);font-size:1.8rem;font-variant-numeric:tabular-nums}
+/* flashcards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.fc{font:inherit;text-align:right;min-height:130px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;color:var(--ink)}
+.fc .t{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.fc .en{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);direction:ltr;text-align:right}
+.fc .d{font-size:.93rem;color:var(--ink)}
+.fc .hint{font-size:.78rem;color:var(--muted);margin-top:auto}
+.fc.flip{background:var(--accent-soft);border-color:var(--accent)}
+input[type=search]{font:inherit;width:100%;max-width:420px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+/* risk matrix */
+.matrix-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.matrix{display:grid;grid-template-columns:28px repeat(5,minmax(36px,1fr));gap:4px;direction:ltr}
+.matrix .cell{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.8rem;color:#14232b;cursor:pointer;border:2px solid transparent;max-width:100%}
+.matrix .cell.sel{border-color:var(--ink);transform:scale(1.06)}
+.matrix .ax{display:grid;place-items:center;font-size:.72rem;color:var(--muted);font-family:var(--f-mono)}
+.ctrl{display:flex;flex-direction:column;gap:12px}
+.ctrl label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.93rem}
+select{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.verdict{border-radius:10px;padding:14px 16px;border:1px solid var(--line);background:var(--sunk)}
+.verdict b{font-family:var(--f-display);font-size:1.4rem}
+footer{color:var(--muted);font-size:.85rem;margin-top:36px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:16px}
+  nav.index{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  nav.index a{white-space:nowrap;border:1px solid var(--line);flex:none}
+  .nav-label,.pct{display:none}
+  .hero,.matrix-wrap{grid-template-columns:minmax(0,1fr)}
+  .bar{width:80px}
+  h1{font-size:1.6rem}
+  .lesson{padding:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app" dir="rtl" lang="he">
+  <header class="top"><div class="top-in">
+    <a class="brand" href="#home"><span class="seal">GRC</span>מסלול GRC</a>
+    <div class="overall"><span id="ovTxt">0% הושלם</span><div class="bar"><i id="ovBar" style="width:0%"></i></div></div>
+  </div></header>
+  <div class="shell">
+    <nav class="index" id="nav" aria-label="מודולים"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+document.documentElement.setAttribute('dir','rtl');
+document.documentElement.setAttribute('lang','he');
+
+/* ================= CONTENT ================= */
+const MODULES = [
+{
+ id:'basics', code:'01', title:'יסודות GRC', group:'יסודות',
+ blurb:'ממשל, סיכונים וציות: מה כל רכיב עושה, היררכיית מסמכים ומודל שלושת הקווים.',
+ lessons:[
+  {t:'מה זה GRC', h:`
+   <p><strong>GRC</strong> הוא שם כולל לשלוש פונקציות שעובדות יחד כדי שהארגון ישיג את יעדיו בלי להפתיע את עצמו:</p>
+   <ul>
+    <li><strong>Governance (ממשל)</strong>: מי מחליט, מי אחראי ומי מדווח למי. כולל מדיניות, ועדות, תפקידים (CISO, DPO, בעלי סיכון) ודיווח לדירקטוריון.</li>
+    <li><strong>Risk (ניהול סיכונים)</strong>: זיהוי, הערכה וטיפול בסיכונים שעלולים לפגוע ביעדים, בתוך תיאבון הסיכון שהוגדר.</li>
+    <li><strong>Compliance (ציות)</strong>: עמידה בדרישות חיצוניות (חוקים, רגולציה, תקנים, חוזים מול לקוחות) ובמדיניות הפנימית, והוכחה לכך באמצעות ראיות.</li>
+   </ul>
+   <div class="tip">כלל אצבע: ממשל קובע את הכללים, ניהול סיכונים מחליט היכן להשקיע, וציות מוכיח שהכללים מיושמים.</div>`},
+  {t:'היררכיית מסמכים', h:`
+   <div class="flow"><span>מדיניות Policy</span><b>←</b><span>תקן פנימי Standard</span><b>←</b><span>נוהל Procedure</span><b>←</b><span>הנחיה Guideline</span></div>
+   <ul>
+    <li><strong>מדיניות</strong>: הצהרת כוונות קצרה, מאושרת ע״י ההנהלה. "הארגון יגביל גישה למידע לפי עקרון הצורך לדעת".</li>
+    <li><strong>תקן פנימי</strong>: דרישה מדידה ומחייבת. "סיסמה באורך 14 תווים לפחות, MFA לכל גישה מרחוק".</li>
+    <li><strong>נוהל</strong>: צעד אחר צעד, מי עושה מה ומתי. "תהליך פתיחת הרשאה: בקשה בכרטיס, אישור מנהל, ביצוע IT, תיעוד".</li>
+    <li><strong>הנחיה</strong>: המלצה, לא מחייבת.</li>
+   </ul>
+   <div class="note">מבקרים בודקים שלושה דברים: שהמסמך קיים ומאושר, שהוא נסקר במחזוריות (בדרך כלל שנתית), ושבפועל עובדים לפיו.</div>`},
+  {t:'מודל שלושת הקווים', h:`
+   <p>המודל של IIA (מכון המבקרים הפנימיים, עדכון 2020) מגדיר הפרדת תפקידים בניהול סיכונים:</p>
+   <div class="scroll"><table><tr><th>קו</th><th>מי</th><th>תפקיד</th></tr>
+    <tr><td>1</td><td>ההנהלה התפעולית, בעלי התהליכים, IT</td><td>הבעלים של הסיכון. מפעילים את הבקרות ביום־יום.</td></tr>
+    <tr><td>2</td><td>ניהול סיכונים, ציות, אבטחת מידע (לרוב CISO)</td><td>קובעים מסגרת, מדיניות ומתודולוגיה, מאתגרים ומנטרים את קו 1.</td></tr>
+    <tr><td>3</td><td>ביקורת פנימית</td><td>הבטחה בלתי תלויה. מדווחת לוועדת הביקורת של הדירקטוריון.</td></tr>
+   </table></div>
+   <p>מבקר חיצוני (גוף הסמכה, רואה חשבון) נמצא מחוץ לשלושת הקווים.</p>`},
+  {t:'סוגי בקרות', h:`
+   <p><strong>בקרה (Control)</strong> היא אמצעי שמפחית סיכון. מסווגים אותה בשני צירים:</p>
+   <div class="scroll"><table><tr><th>לפי תפקיד</th><th>דוגמה</th></tr>
+    <tr><td>מונעת (Preventive)</td><td>MFA, הרשאות מינימליות, הצפנה</td></tr>
+    <tr><td>מגלה (Detective)</td><td>ניטור לוגים, SIEM, סקירת הרשאות רבעונית</td></tr>
+    <tr><td>מתקנת (Corrective)</td><td>שחזור מגיבוי, תוכנית תגובה לאירוע</td></tr>
+   </table></div>
+   <div class="scroll"><table><tr><th>לפי אופי</th><th>דוגמה</th></tr>
+    <tr><td>מנהלתית</td><td>מדיניות, הדרכות, סיווג מידע</td></tr>
+    <tr><td>טכנולוגית</td><td>Firewall, EDR, DLP</td></tr>
+    <tr><td>פיזית</td><td>כרטיסי כניסה, מצלמות, ארון תקשורת נעול</td></tr>
+   </table></div>
+   <p>לכל בקרה צריך: <strong>בעלים</strong>, <strong>תדירות</strong>, ו<strong>ראיה</strong> (Evidence) שמוכיחה שהיא פעלה.</p>`}
+ ],
+ quiz:[
+  {q:'מי אחראי להפעיל בקרות ביום־יום לפי מודל שלושת הקווים?',o:['ביקורת פנימית','קו 1, ההנהלה התפעולית','ועדת הביקורת','המבקר החיצוני'],a:1,e:'קו 1 הוא הבעלים של הסיכון ומפעיל את הבקרות. קו 2 מפקח, קו 3 נותן הבטחה בלתי תלויה.'},
+  {q:'"סיסמה באורך 14 תווים לפחות" היא דוגמה ל־',o:['מדיניות','תקן פנימי','הנחיה','נוהל'],a:1,e:'תקן פנימי מתרגם את המדיניות לדרישה מדידה ומחייבת.'},
+  {q:'סקירת הרשאות רבעונית היא בקרה מסוג',o:['מונעת','מגלה','מתקנת','פיזית'],a:1,e:'הסקירה מגלה הרשאות עודפות אחרי שנוצרו. היא לא מונעת את יצירתן.'},
+  {q:'מה מבקר יבקש כדי לוודא שבקרה פועלת?',o:['את המדיניות בלבד','ראיה שהבקרה בוצעה בתקופה הנבדקת','חתימה של המנכ״ל','הצהרה בעל פה של בעל הבקרה'],a:1,e:'מדיניות מוכיחה כוונה. ראיה (כרטיס, לוג, צילום מסך עם תאריך) מוכיחה ביצוע.'}
+ ],
+ terms:['ISMS','Control','Evidence','Risk Owner']
+},
+{
+ id:'risk', code:'02', title:'ניהול סיכונים', group:'יסודות',
+ blurb:'תהליך הערכת סיכונים, מטריצת סבירות × השפעה, אפשרויות טיפול ומרשם סיכונים.',
+ lessons:[
+  {t:'תהליך ניהול סיכונים', h:`
+   <p>התהליך מבוסס על ISO 31000 (ניהול סיכונים כללי) ו־ISO/IEC 27005 (סיכוני אבטחת מידע):</p>
+   <div class="flow"><span>הקשר והיקף</span><b>←</b><span>זיהוי</span><b>←</b><span>ניתוח</span><b>←</b><span>הערכה</span><b>←</b><span>טיפול</span><b>←</b><span>ניטור וסקירה</span></div>
+   <ul>
+    <li><strong>זיהוי</strong>: נכס (מערכת, מידע, תהליך) + איום (כופרה, טעות אנוש) + חולשה (אין גיבוי מנותק).</li>
+    <li><strong>ניתוח</strong>: הערכת סבירות והשפעה, לרוב בסולם 1 עד 5.</li>
+    <li><strong>הערכה</strong>: השוואת הציון לתיאבון הסיכון וקביעת סדר עדיפויות.</li>
+    <li><strong>ניטור</strong>: סקירה לפחות פעם בשנה, ובכל שינוי מהותי (מערכת חדשה, ספק חדש, אירוע).</li>
+   </ul>`},
+  {t:'סיכון גולמי, שיורי ותיאבון סיכון', h:`
+   <ul>
+    <li><strong>סיכון גולמי (Inherent)</strong>: רמת הסיכון לפני בקרות.</li>
+    <li><strong>סיכון שיורי (Residual)</strong>: מה שנשאר אחרי הבקרות. זה הנתון שעליו ההנהלה מחליטה.</li>
+    <li><strong>תיאבון סיכון (Risk Appetite)</strong>: כמה סיכון הארגון מוכן לקחת כדי להשיג את יעדיו. מאושר בדירקטוריון.</li>
+    <li><strong>סף סבילות (Tolerance)</strong>: הסטייה המותרת מהתיאבון במדד מסוים.</li>
+   </ul>
+   <div class="tip">דוגמה: סיכון כופרה גולמי 20 (סבירות 4 × השפעה 5). אחרי EDR וגיבוי מנותק: 6 (סבירות 2 × השפעה 3). אם התיאבון הוא עד 8, הסיכון השיורי מתקבל.</div>`},
+  {t:'ארבע אפשרויות טיפול', h:`
+   <div class="scroll"><table><tr><th>אפשרות</th><th>משמעות</th><th>דוגמה</th></tr>
+    <tr><td>הפחתה (Mitigate)</td><td>הוספת בקרות</td><td>הטמעת MFA</td></tr>
+    <tr><td>העברה (Transfer)</td><td>העברת ההשפעה הכספית לגורם אחר</td><td>ביטוח סייבר, סעיף שיפוי בחוזה</td></tr>
+    <tr><td>הימנעות (Avoid)</td><td>הפסקת הפעילות שיוצרת את הסיכון</td><td>ויתור על שמירת מספרי כרטיסי אשראי</td></tr>
+    <tr><td>קבלה (Accept)</td><td>החלטה מתועדת לחיות עם הסיכון</td><td>מערכת ישנה שתוחלף בעוד חצי שנה</td></tr>
+   </table></div>
+   <div class="note">קבלת סיכון נחתמת ע״י בעל הסיכון בדרג מתאים, עם תאריך תפוגה. מבקר ISO יבקש לראות את האישור.</div>`},
+  {t:'מרשם סיכונים', h:`
+   <p>מרשם סיכונים (Risk Register) הוא הטבלה המרכזית של התחום. שדות מינימליים:</p>
+   <div class="scroll"><table><tr><th>מזהה</th><th>תיאור</th><th>בעלים</th><th>סבירות</th><th>השפעה</th><th>גולמי</th><th>בקרות</th><th>שיורי</th><th>טיפול</th><th>יעד</th></tr>
+    <tr><td class="mono">R-07</td><td>כופרה מצפינה את שרתי הקבצים</td><td>מנהל IT</td><td>4</td><td>5</td><td>20</td><td>EDR, גיבוי מנותק</td><td>6</td><td>הפחתה</td><td>Q1</td></tr>
+    <tr><td class="mono">R-12</td><td>ספק SaaS דולף מידע לקוחות</td><td>CISO</td><td>3</td><td>4</td><td>12</td><td>בחינת SOC 2, סעיף שיפוי</td><td>8</td><td>העברה</td><td>Q2</td></tr>
+   </table></div>
+   <p>נסו את המטריצה בלשונית "מטריצת סיכון" כדי לראות איך הציון נקבע.</p>`},
+  {t:'מטריצת סיכון', widget:'matrix'}
+ ],
+ quiz:[
+  {q:'על איזה ציון סיכון ההנהלה מקבלת החלטה?',o:['סיכון גולמי','סיכון שיורי','סבירות בלבד','ההשפעה הכספית המקסימלית'],a:1,e:'הסיכון השיורי משקף את המצב בפועל אחרי הבקרות, ומושווה לתיאבון הסיכון.'},
+  {q:'רכישת ביטוח סייבר היא',o:['הפחתה','העברה','הימנעות','קבלה'],a:1,e:'ביטוח מעביר את ההשפעה הכספית לצד שלישי. הסבירות לאירוע לא משתנה.'},
+  {q:'סבירות 3, השפעה 5. מה הציון במטריצה 5×5?',o:['8','15','20','2'],a:1,e:'ציון = סבירות × השפעה = 15, בדרך כלל ברמה "גבוה".'},
+  {q:'מה חייב להופיע בקבלת סיכון תקינה?',o:['רק תיאור הסיכון','אישור חתום של בעל סיכון בדרג מתאים ותאריך סקירה','אישור של מבקר חיצוני','חותמת של גוף ההסמכה'],a:1,e:'קבלת סיכון היא החלטה ניהולית מתועדת, עם בעלים ותאריך תפוגה.'}
+ ],
+ terms:['Risk Appetite','Inherent Risk','Residual Risk','Risk Register']
+},
+{
+ id:'iso27001', code:'03', title:'ISO/IEC 27001:2022', group:'תקנים',
+ blurb:'מערכת ניהול אבטחת מידע (ISMS), סעיפים 4 עד 10, 93 בקרות בנספח A, הצהרת ישימות ומסלול ההסמכה.',
+ lessons:[
+  {t:'מה התקן דורש', h:`
+   <p>ISO/IEC 27001 הוא התקן הבינלאומי ל<strong>מערכת ניהול אבטחת מידע (ISMS)</strong>. הוא לא אומר "תתקינו Firewall". הוא דורש שתנהלו את אבטחת המידע כתהליך מבוסס סיכונים, עם הנהלה מעורבת ושיפור מתמיד.</p>
+   <ul>
+    <li>הגרסה הנוכחית: <strong>2022</strong> (עם תיקון Amd 1:2024 בנושא שינויי אקלים). תקופת המעבר מגרסת 2013 הסתיימה ב־31 באוקטובר 2025.</li>
+    <li>ניתן ל<strong>הסמכה (Certification)</strong> ע״י גוף הסמכה מוכר. התעודה תקפה ל־3 שנים.</li>
+    <li>תקני משפחה: <span class="mono">27002</span> (הנחיות יישום לבקרות), <span class="mono">27005</span> (סיכונים), <span class="mono">27701</span> (הרחבה לפרטיות), <span class="mono">27017/27018</span> (ענן).</li>
+   </ul>`},
+  {t:'סעיפים 4 עד 10: הליבה המחייבת', h:`
+   <p>סעיפים 0 עד 3 הם מבוא והגדרות. סעיפים 4 עד 10 חובה, ובנויים על מחזור PDCA:</p>
+   <div class="scroll"><table><tr><th>סעיף</th><th>נושא</th><th>מה בודקים</th></tr>
+    <tr><td class="mono">4</td><td>הקשר הארגון</td><td>בעלי עניין, סוגיות פנימיות וחיצוניות, <strong>היקף ה־ISMS</strong></td></tr>
+    <tr><td class="mono">5</td><td>מנהיגות</td><td>מחויבות הנהלה, מדיניות אבטחת מידע, תפקידים ואחריות</td></tr>
+    <tr><td class="mono">6</td><td>תכנון</td><td>מתודולוגיית הערכת סיכונים, תוכנית טיפול, <strong>SoA</strong>, יעדים מדידים</td></tr>
+    <tr><td class="mono">7</td><td>תמיכה</td><td>משאבים, כשירות, מודעות, תקשורת, מידע מתועד</td></tr>
+    <tr><td class="mono">8</td><td>תפעול</td><td>ביצוע הערכת הסיכונים ותוכנית הטיפול בפועל</td></tr>
+    <tr><td class="mono">9</td><td>הערכת ביצועים</td><td>מדידה, <strong>מבדק פנימי</strong>, <strong>סקר הנהלה</strong></td></tr>
+    <tr><td class="mono">10</td><td>שיפור</td><td>אי־התאמות, פעולות מתקנות, שיפור מתמיד</td></tr>
+   </table></div>
+   <div class="note">אי אפשר להחריג אף סעיף מ־4 עד 10. אפשר להחריג רק בקרות מנספח A, עם נימוק ב־SoA.</div>`},
+  {t:'נספח A: 93 בקרות בארבעה נושאים', h:`
+   <div class="scroll"><table><tr><th>נושא</th><th>מספור</th><th>כמות</th><th>דוגמאות</th></tr>
+    <tr><td>ארגוניות</td><td class="mono">A.5</td><td>37</td><td>מדיניות, סיווג מידע, ניהול ספקים, ניהול אירועים, המשכיות</td></tr>
+    <tr><td>אנשים</td><td class="mono">A.6</td><td>8</td><td>סינון מועמדים, הדרכה ומודעות, עבודה מרחוק, NDA</td></tr>
+    <tr><td>פיזיות</td><td class="mono">A.7</td><td>14</td><td>היקף פיזי, בקרת כניסה, שולחן נקי, השמדת מדיה</td></tr>
+    <tr><td>טכנולוגיות</td><td class="mono">A.8</td><td>34</td><td>הרשאות, הצפנה, גיבוי, לוגים, פיתוח מאובטח, ניהול פגיעויות</td></tr>
+   </table></div>
+   <p><strong>11 בקרות חדשות ב־2022:</strong> מודיעין איומים (A.5.7), אבטחת שירותי ענן (A.5.23), מוכנות ICT להמשכיות (A.5.30), ניטור אבטחה פיזית (A.7.4), ניהול תצורה (A.8.9), מחיקת מידע (A.8.10), התממת נתונים (A.8.11), מניעת זליגת מידע (A.8.12), פעילויות ניטור (A.8.16), סינון Web (A.8.23), קידוד מאובטח (A.8.28).</p>`},
+  {t:'הצהרת ישימות (SoA)', h:`
+   <p>ה־<strong>Statement of Applicability</strong> הוא המסמך החשוב ביותר במבדק. לכל אחת מ־93 הבקרות הוא מפרט:</p>
+   <ul><li>האם הבקרה ישימה</li><li>נימוק להכללה או להחרגה (קשור לסיכון, לחוק או לחוזה)</li><li>סטטוס יישום</li><li>הפניה למסמך או לראיה</li></ul>
+   <div class="tip">דוגמה להחרגה סבירה: A.8.28 קידוד מאובטח אינה ישימה לארגון שלא מפתח תוכנה. החרגה לא סבירה: A.8.13 גיבוי, "כי זה יקר".</div>`},
+  {t:'מסלול ההסמכה', h:`
+   <div class="flow"><span>Gap Analysis</span><b>←</b><span>הגדרת היקף</span><b>←</b><span>הערכת סיכונים</span><b>←</b><span>SoA ומדיניות</span><b>←</b><span>יישום</span><b>←</b><span>מבדק פנימי</span><b>←</b><span>סקר הנהלה</span><b>←</b><span>Stage 1</span><b>←</b><span>Stage 2</span></div>
+   <ul>
+    <li><strong>Stage 1</strong>: בדיקת תיעוד ומוכנות. המבקר מוודא שה־ISMS מוגדר.</li>
+    <li><strong>Stage 2</strong>: בדיקת יישום בפועל, ראיונות ודגימות ראיות.</li>
+    <li><strong>ממצאים</strong>: אי־התאמה מהותית (Major) מעכבת הסמכה עד תיקון. אי־התאמה משנית (Minor) דורשת תוכנית תיקון. הערה/הזדמנות לשיפור (OFI) אינה מחייבת.</li>
+    <li><strong>מחזור</strong>: תעודה ל־3 שנים, מבדקי מעקב (Surveillance) שנתיים, ומבדק הסמכה מחדש בשנה השלישית.</li>
+   </ul>
+   <div class="note">משך טיפוסי לארגון של 50 עד 200 עובדים: 6 עד 12 חודשים מ־Gap ועד תעודה.</div>`}
+ ],
+ quiz:[
+  {q:'כמה בקרות יש בנספח A של ISO 27001:2022?',o:['114','93','133','64'],a:1,e:'93 בקרות בארבעה נושאים. 114 היה מספר הבקרות בגרסת 2013.'},
+  {q:'איזה מסמך מפרט לכל בקרה אם היא ישימה ולמה?',o:['מדיניות אבטחת מידע','מרשם סיכונים','הצהרת ישימות (SoA)','דוח מבדק פנימי'],a:2,e:'ה־SoA מקשר בין הערכת הסיכונים לבחירת הבקרות.'},
+  {q:'האם ניתן להחריג את סעיף 9 (הערכת ביצועים)?',o:['כן, עם נימוק ב־SoA','לא, סעיפים 4 עד 10 מחייבים','רק בארגון קטן','רק בשנה הראשונה'],a:1,e:'רק בקרות נספח A ניתנות להחרגה. סעיפי הליבה מחייבים תמיד.'},
+  {q:'מה בודקים ב־Stage 2?',o:['רק את המדיניות','את היישום בפועל באמצעות ראיונות וראיות','את הדוחות הכספיים','את החוזים עם הלקוחות'],a:1,e:'Stage 1 בודק מוכנות ותיעוד. Stage 2 בודק שה־ISMS פועל.'},
+  {q:'לכמה זמן תקפה תעודת ISO 27001?',o:['שנה','שנתיים','3 שנים עם מבדקי מעקב שנתיים','5 שנים'],a:2,e:'3 שנים, עם Surveillance Audit בכל שנה.'},
+  {q:'איזו מהבקרות הבאות נוספה בגרסת 2022?',o:['בקרת כניסה פיזית','מודיעין איומים (A.5.7)','גיבוי','מדיניות סיסמאות'],a:1,e:'מודיעין איומים היא אחת מ־11 הבקרות החדשות.'}
+ ],
+ terms:['SoA','Stage 1 / Stage 2','Nonconformity','Management Review','Internal Audit']
+},
+{
+ id:'soc2', code:'04', title:'SOC 2', group:'תקנים',
+ blurb:'מסגרת AICPA, חמשת קריטריוני השירות (TSC), ההבדל בין Type I ל־Type II ומבנה הדוח.',
+ lessons:[
+  {t:'מה זה SOC 2', h:`
+   <p>SOC 2 הוא <strong>דוח אישור (Attestation)</strong> לפי סטנדרט AICPA (לשכת רואי החשבון האמריקאית), שמונפק ע״י פירמת CPA בלתי תלויה. זו <strong>לא הסמכה</strong>. אין "תעודת SOC 2", יש דוח עם חוות דעת.</p>
+   <ul>
+    <li>נפוץ אצל ספקי SaaS ושירותי ענן שמוכרים לשוק האמריקאי.</li>
+    <li>הלקוח (User Entity) מקבל את הדוח בכפוף ל־NDA, ובודק אותו במסגרת ניהול סיכוני ספקים.</li>
+   </ul>
+   <div class="scroll"><table><tr><th>דוח</th><th>מה בודק</th><th>קהל</th></tr>
+    <tr><td>SOC 1</td><td>בקרות שמשפיעות על דיווח כספי של הלקוח (ICFR)</td><td>מבקרי הדוחות הכספיים של הלקוח</td></tr>
+    <tr><td>SOC 2</td><td>אבטחה, זמינות, שלמות עיבוד, סודיות ופרטיות</td><td>לקוחות ושותפים, תחת NDA</td></tr>
+    <tr><td>SOC 3</td><td>תקציר ציבורי של SOC 2, בלי פירוט הבדיקות</td><td>שיווק, ציבור</td></tr>
+   </table></div>`},
+  {t:'Trust Services Criteria', h:`
+   <div class="scroll"><table><tr><th>קריטריון</th><th>חובה?</th><th>שאלת המפתח</th></tr>
+    <tr><td><strong>Security</strong> (Common Criteria)</td><td>חובה</td><td>האם המערכת מוגנת מגישה לא מורשית?</td></tr>
+    <tr><td>Availability</td><td>אופציונלי</td><td>האם המערכת זמינה כפי שהתחייבנו (SLA, DR)?</td></tr>
+    <tr><td>Processing Integrity</td><td>אופציונלי</td><td>האם העיבוד שלם, מדויק ובזמן?</td></tr>
+    <tr><td>Confidentiality</td><td>אופציונלי</td><td>האם מידע שסווג כסודי מוגן לאורך מחזור החיים?</td></tr>
+    <tr><td>Privacy</td><td>אופציונלי</td><td>האם מידע אישי נאסף, נשמר ונמחק לפי ההתחייבויות?</td></tr>
+   </table></div>
+   <p><strong>Common Criteria</strong> מבוססים על מסגרת COSO 2013:</p>
+   <div class="scroll"><table><tr><th>קוד</th><th>תחום</th></tr>
+    <tr><td class="mono">CC1</td><td>סביבת בקרה (ממשל, אתיקה, מבנה)</td></tr>
+    <tr><td class="mono">CC2</td><td>מידע ותקשורת</td></tr>
+    <tr><td class="mono">CC3</td><td>הערכת סיכונים</td></tr>
+    <tr><td class="mono">CC4</td><td>פעילויות ניטור</td></tr>
+    <tr><td class="mono">CC5</td><td>פעילויות בקרה</td></tr>
+    <tr><td class="mono">CC6</td><td>גישה לוגית ופיזית</td></tr>
+    <tr><td class="mono">CC7</td><td>תפעול מערכות (ניטור, אירועים)</td></tr>
+    <tr><td class="mono">CC8</td><td>ניהול שינויים</td></tr>
+    <tr><td class="mono">CC9</td><td>הפחתת סיכונים (המשכיות, ספקים)</td></tr>
+   </table></div>`},
+  {t:'Type I מול Type II', h:`
+   <div class="scroll"><table><tr><th></th><th>Type I</th><th>Type II</th></tr>
+    <tr><td>מה נבדק</td><td>תכנון הבקרות (Design)</td><td>תכנון + <strong>אפקטיביות תפעולית</strong></td></tr>
+    <tr><td>זמן</td><td>נקודת זמן (Point in time)</td><td>תקופת תצפית, בדרך כלל 3 עד 12 חודשים</td></tr>
+    <tr><td>ראיות</td><td>מדיניות, הגדרות, Walkthrough</td><td>דגימות לאורך התקופה (כרטיסים, לוגים, סקירות)</td></tr>
+    <tr><td>ערך בעיני לקוח</td><td>צעד ראשון</td><td>הדוח שלקוחות ארגוניים דורשים</td></tr>
+   </table></div>
+   <div class="tip">מסלול נפוץ: Readiness Assessment, ואז Type I, ואז Type II עם תקופת תצפית ראשונה של 3 עד 6 חודשים, ובהמשך דוח שנתי של 12 חודשים.</div>`},
+  {t:'מבנה הדוח ומה לבדוק בו', h:`
+   <ol>
+    <li><strong>חוות דעת המבקר</strong>: Unqualified (נקייה) או Qualified (עם הסתייגות).</li>
+    <li><strong>הצהרת ההנהלה</strong> (Management Assertion).</li>
+    <li><strong>תיאור המערכת</strong>: שירותים, תשתית, אנשים, נתונים, גבולות.</li>
+    <li><strong>בקרות, בדיקות ותוצאות</strong>, כולל <strong>חריגים (Exceptions)</strong>.</li>
+   </ol>
+   <p>כשבודקים דוח SOC 2 של ספק, חפשו:</p>
+   <ul>
+    <li>האם התקופה עדכנית, ואם לא, בקשו <strong>Bridge Letter</strong>.</li>
+    <li>האם השירות שאתם קונים בתוך ההיקף.</li>
+    <li><strong>CUECs</strong>: בקרות שהלקוח חייב להפעיל בעצמו (למשל ניהול משתמשים אצלו).</li>
+    <li><strong>Subservice Organizations</strong>: האם AWS/Azure הוחרגו (Carve-out) או נכללו (Inclusive).</li>
+   </ul>`}
+ ],
+ quiz:[
+  {q:'איזה קריטריון חובה בכל דוח SOC 2?',o:['Availability','Privacy','Security','Confidentiality'],a:2,e:'Security (Common Criteria) תמיד בהיקף. השאר נבחרים לפי ההתחייבויות ללקוחות.'},
+  {q:'מה ההבדל המרכזי בין Type I ל־Type II?',o:['Type II כולל גם פרטיות','Type II בודק אפקטיביות תפעולית לאורך תקופה','Type I מיועד לארגונים גדולים','אין הבדל'],a:1,e:'Type I בודק תכנון בנקודת זמן. Type II בודק שהבקרות עבדו לאורך תקופת התצפית.'},
+  {q:'מי מנפיק דוח SOC 2?',o:['גוף הסמכה ISO','פירמת CPA בלתי תלויה','AICPA עצמה','מערך הסייבר'],a:1,e:'דוח אישור של רואי חשבון מוסמכים בארה״ב.'},
+  {q:'דוח הספק מכסה עד לפני 5 חודשים. מה מבקשים?',o:['SOC 3','Bridge Letter','תעודת ISO','לא צריך כלום'],a:1,e:'Bridge Letter היא הצהרת הנהלה שלא חלו שינויים מהותיים מסוף התקופה.'},
+  {q:'מה הן CUECs?',o:['חריגים שהמבקר מצא','בקרות שהלקוח צריך להפעיל בעצמו','ספקי משנה','קריטריונים אופציונליים'],a:1,e:'Complementary User Entity Controls. בלעדיהן ההגנה שהדוח מתאר לא מלאה.'}
+ ],
+ terms:['TSC','Type I / Type II','CUEC','Bridge Letter','Carve-out']
+},
+{
+ id:'incd', code:'05', title:'מערך הסייבר והפרטיות בישראל', group:'רגולציה',
+ blurb:'תורת ההגנה בסייבר לארגון, מודל הרגולציה המגזרית, תקנות אבטחת מידע ותיקון 13 לחוק הגנת הפרטיות.',
+ lessons:[
+  {t:'מערך הסייבר הלאומי', h:`
+   <p>מערך הסייבר הלאומי (INCD) הוא הגוף הממלכתי לאחריות על הגנת הסייבר האזרחית בישראל, ופועל תחת משרד ראש הממשלה.</p>
+   <ul>
+    <li><strong>CERT לאומי</strong>: מוקד 119 לדיווח ולסיוע באירועי סייבר.</li>
+    <li><strong>הסדרה מגזרית</strong>: המערך פועל דרך רגולטורים מגזריים (אנרגיה, מים, בריאות, תחבורה, פיננסים ועוד) ומכוון אותם מקצועית.</li>
+    <li><strong>תשתיות קריטיות</strong>: גופים שהוגדרו לפי החוק להסדרת הביטחון בגופים ציבוריים מונחים ישירות.</li>
+    <li>פרסומים מרכזיים: תורת ההגנה בסייבר לארגון, הנחיות להגנה על שרשרת אספקה, ופרסומי אזהרה שוטפים.</li>
+   </ul>`},
+  {t:'תורת ההגנה בסייבר לארגון', h:`
+   <p>המסמך המרכזי של המערך לניהול סיכוני סייבר בארגון (גרסה 2.0 פורסמה ב־2021). מבוסס על מבנה <strong>NIST Cybersecurity Framework</strong> ומותאם לישראל.</p>
+   <ul>
+    <li><strong>סיווג הארגון</strong>: הארגון קובע את רמתו לפי פוטנציאל הנזק (לעצמו, ללקוחות, למשק). ככל שהנזק הפוטנציאלי גבוה יותר, נדרשות יותר בקרות ובקרות מתקדמות יותר.</li>
+    <li><strong>מערך בקרות</strong> מחולק למשפחות (ממשל, ניהול נכסים, הרשאות, הגנת רשת, ניטור, תגובה, ספקים ועוד), כל אחת עם רמות בשלות.</li>
+    <li><strong>הערכה עצמית</strong>: המתודולוגיה כוללת כלי ניקוד שמאפשר למדוד פער ולתעדף.</li>
+    <li>ארגון שמיישם ISO 27001 יכול למפות את הבקרות שלו לתורה ולהשלים פערים.</li>
+   </ul>
+   <div class="note">בדקו תמיד את הגרסה העדכנית באתר gov.il של מערך הסייבר. המערך מעדכן מסמכים ותוספות מגזריות.</div>`},
+  {t:'תקנות הגנת הפרטיות (אבטחת מידע), 2017', h:`
+   <p>חלות על כל מאגר מידע אישי בישראל. בתוקף ממאי 2018. מאגר מסווג לאחת מארבע רמות אבטחה:</p>
+   <div class="scroll"><table><tr><th>רמה</th><th>מאפיין</th><th>דרישות בולטות</th></tr>
+    <tr><td>מאגר בניהול יחיד</td><td>אדם אחד מחזיק ומנהל</td><td>דרישות בסיסיות מצומצמות</td></tr>
+    <tr><td>בסיסית</td><td>ברירת המחדל</td><td>מסמך הגדרות מאגר, נוהל אבטחה, בקרת גישה, תיעוד אירועים</td></tr>
+    <tr><td>בינונית</td><td>מידע רגיש, או מאגר שמטרתו העיקרית איסוף מידע לגורם אחר</td><td>סקירת סיכונים, ביקורת חיצונית או פנימית כל 24 חודשים</td></tr>
+    <tr><td>גבוהה</td><td>מידע רגיש על 100,000 איש ומעלה, או מעל 100 בעלי הרשאה</td><td>סקר סיכונים ומבדק חדירה כל 18 חודשים, דיווח אירוע חמור לרשות</td></tr>
+   </table></div>`},
+  {t:'תיקון 13 לחוק הגנת הפרטיות', h:`
+   <p>נכנס לתוקף ב־<strong>14 באוגוסט 2025</strong>. השינוי הגדול ביותר בחוק מאז חקיקתו:</p>
+   <ul>
+    <li><strong>סמכויות אכיפה</strong>: הרשות להגנת הפרטיות יכולה להטיל עיצומים כספיים משמעותיים.</li>
+    <li><strong>ממונה הגנת פרטיות (DPO)</strong>: חובת מינוי בגופים ציבוריים ובגופים שעוסקים בעיבוד מידע רגיש בהיקף ניכר או בניטור שיטתי.</li>
+    <li><strong>הגדרות מעודכנות</strong>: "מידע אישי" ו"מידע בעל רגישות מיוחדת" במקום המונחים הישנים, קרוב יותר לשפת GDPR.</li>
+    <li><strong>צמצום חובת רישום מאגרים</strong>, ומעבר לחובת הודעה במקרים מסוימים.</li>
+   </ul>
+   <div class="tip">בפגישה עם לקוח ישראלי, שאלו: האם מונה DPO? מה רמת האבטחה של כל מאגר? מתי בוצע מבדק החדירה האחרון?</div>`}
+ ],
+ quiz:[
+  {q:'על איזו מסגרת בינלאומית מבוססת תורת ההגנה בסייבר לארגון?',o:['COBIT','NIST CSF','PCI DSS','ITIL'],a:1,e:'התורה נשענת על מבנה NIST CSF ומוסיפה התאמות ישראליות.'},
+  {q:'מתי נכנס לתוקף תיקון 13 לחוק הגנת הפרטיות?',o:['מאי 2018','ינואר 2024','אוגוסט 2025','עדיין לא נכנס'],a:2,e:'14 באוגוסט 2025.'},
+  {q:'באיזו רמת אבטחה נדרש מבדק חדירה כל 18 חודשים?',o:['בסיסית','בינונית','גבוהה','בניהול יחיד'],a:2,e:'ברמה גבוהה נדרשים סקר סיכונים ומבדק חדירה אחת ל־18 חודשים.'},
+  {q:'מה מספר מוקד החירום של CERT הלאומי?',o:['100','119','104','118'],a:1,e:'119 הוא המוקד לדיווח אירועי סייבר.'}
+ ],
+ terms:['NIST CSF','DPO','Amendment 13','CERT']
+},
+{
+ id:'sector', code:'06', title:'רגולציה מגזרית', group:'רגולציה',
+ blurb:'פיננסים (בנק ישראל, שוק ההון, PCI DSS, DORA), בריאות (HIPAA, משרד הבריאות), GDPR ו־NIS2.',
+ lessons:[
+  {t:'פיננסים בישראל', h:`
+   <div class="scroll"><table><tr><th>רגולטור</th><th>מסמך</th><th>עיקר</th></tr>
+    <tr><td>בנק ישראל, הפיקוח על הבנקים</td><td>ניהול בנקאי תקין <span class="mono">361</span></td><td>ניהול הגנת הסייבר: מסגרת, מנהל הגנת סייבר, אחריות דירקטוריון, דיווח אירועים</td></tr>
+    <tr><td>בנק ישראל</td><td>ניהול בנקאי תקין <span class="mono">357</span></td><td>ניהול טכנולוגיית מידע</td></tr>
+    <tr><td>בנק ישראל</td><td>ניהול בנקאי תקין <span class="mono">362</span></td><td>מחשוב ענן: הערכת סיכונים, אישורים, יכולת יציאה</td></tr>
+    <tr><td>רשות שוק ההון, ביטוח וחיסכון</td><td>חוזר ניהול סיכוני סייבר בגופים מוסדיים</td><td>מסגרת ממשל סייבר בחברות ביטוח, קרנות פנסיה וגמל</td></tr>
+    <tr><td>רשות ניירות ערך</td><td>הנחיות גילוי</td><td>דיווח על סיכוני סייבר ואירועים מהותיים בדוחות</td></tr>
+   </table></div>
+   <div class="note">ספק טכנולוגיה שמוכר לבנק יקבל שאלון שנגזר מ־361 ו־362. היכרות עם הדרישות האלה חוסכת סבבים.</div>`},
+  {t:'פיננסים: PCI DSS ו־DORA', h:`
+   <p><strong>PCI DSS v4.0.1</strong> חל על כל מי שמאחסן, מעבד או מעביר נתוני כרטיסי אשראי. 12 דרישות ב־6 מטרות. הדרישות "העתידיות" של גרסה 4.0 מחייבות מ־31 במרץ 2025.</p>
+   <ul>
+    <li>סוחר גדול (Level 1) עובר ביקורת QSA ומקבל ROC. קטנים ממלאים SAQ.</li>
+    <li>הדרך הטובה להקטין עלות: לצמצם את ה־CDE (סביבת נתוני הכרטיס) באמצעות Tokenization או ספק סליקה מארח.</li>
+   </ul>
+   <p><strong>DORA</strong> (Digital Operational Resilience Act, רגולציה 2022/2554 של האיחוד האירופי) חלה מ־17 בינואר 2025 על גופים פיננסיים באיחוד ועל ספקי ICT קריטיים שלהם. חמישה עמודים:</p>
+   <ol><li>ניהול סיכוני ICT</li><li>ניהול ודיווח אירועים</li><li>בדיקות חוסן (כולל TLPT לגופים גדולים)</li><li>ניהול סיכוני צד שלישי</li><li>שיתוף מידע</li></ol>`},
+  {t:'בריאות', h:`
+   <p><strong>HIPAA</strong> (ארה״ב) חל על Covered Entities (ספקי שירותי בריאות, מבטחים) ועל Business Associates שמעבדים עבורם PHI.</p>
+   <ul>
+    <li><strong>Privacy Rule</strong>: שימוש וגילוי של PHI.</li>
+    <li><strong>Security Rule</strong>: אמצעי הגנה מנהלתיים, פיזיים וטכניים ל־ePHI.</li>
+    <li><strong>Breach Notification Rule</strong>: הודעה לנפגעים בתוך 60 יום מגילוי.</li>
+    <li><strong>BAA</strong>: הסכם חובה בין הגוף המכוסה לספק.</li>
+   </ul>
+   <p><strong>בישראל</strong>: חוק זכויות החולה (סודיות רפואית), חוזרי מנכ״ל משרד הבריאות בנושא אבטחת מידע וסייבר, ותקנות הגנת הפרטיות (מידע רפואי הוא מידע רגיש, ולכן לרוב רמה בינונית או גבוהה). משרד הבריאות מפעיל יחידת סייבר מגזרית בתיאום עם מערך הסייבר.</p>
+   <p>תקן תומך: <span class="mono">ISO 27799</span> מתאים את בקרות 27002 למידע בריאותי.</p>`},
+  {t:'פרטיות ותשתיות באיחוד האירופי', h:`
+   <div class="scroll"><table><tr><th></th><th>GDPR</th><th>NIS2</th></tr>
+    <tr><td>חל על</td><td>כל מי שמעבד מידע אישי של אנשים באיחוד</td><td>גופים חיוניים וחשובים ב־18 מגזרים</td></tr>
+    <tr><td>תחילה</td><td>מאי 2018</td><td>מועד היישום במדינות: 18 באוקטובר 2024</td></tr>
+    <tr><td>דיווח אירוע</td><td>לרשות בתוך 72 שעות</td><td>התרעה מוקדמת 24 שעות, הודעה 72 שעות, דוח סופי תוך חודש</td></tr>
+    <tr><td>קנס מרבי</td><td>4% מהמחזור העולמי או 20 מיליון אירו</td><td>חיוני: 2% או 10 מיליון אירו. חשוב: 1.4% או 7 מיליון אירו</td></tr>
+    <tr><td>כלים מרכזיים</td><td>DPIA, DPO, רישום פעולות עיבוד, SCC</td><td>אחריות אישית של ההנהלה, ניהול שרשרת אספקה</td></tr>
+   </table></div>
+   <div class="tip">ישראל קיבלה מהאיחוד מעמד של מדינה בעלת הגנה נאותה (Adequacy), כך שהעברת מידע מהאיחוד לישראל אפשרית בלי מנגנונים נוספים. ההחלטה אושררה מחדש בינואר 2024.</div>`},
+  {t:'בינה מלאכותית: מגמה שכדאי להכיר', h:`
+   <ul>
+    <li><strong>EU AI Act</strong>: בתוקף מאוגוסט 2024, מיושם בשלבים עד 2027. מסווג מערכות לפי רמת סיכון (אסור, גבוה, מוגבל, מינימלי).</li>
+    <li><strong>ISO/IEC 42001:2023</strong>: תקן ניתן להסמכה למערכת ניהול AI (AIMS), באותו מבנה של 27001.</li>
+    <li><strong>NIST AI RMF</strong>: מסגרת וולונטרית לניהול סיכוני AI.</li>
+   </ul>`}
+ ],
+ quiz:[
+  {q:'איזה הוראת ניהול בנקאי תקין עוסקת בניהול הגנת הסייבר?',o:['357','361','362','301'],a:1,e:'361 עוסקת בניהול הגנת הסייבר. 357 בטכנולוגיית מידע, 362 בענן.'},
+  {q:'תוך כמה זמן יש לדווח לרשות על אירוע לפי GDPR?',o:['24 שעות','72 שעות','30 יום','60 יום'],a:1,e:'72 שעות מרגע שנודע על הפרה שעלולה לסכן את זכויות הנפגעים.'},
+  {q:'מאיזה תאריך חלה DORA?',o:['18.10.2024','17.1.2025','31.3.2025','14.8.2025'],a:1,e:'17 בינואר 2025.'},
+  {q:'ספק ענן שמעבד PHI עבור בית חולים אמריקאי חייב לחתום על',o:['DPA','BAA','SCC','NDA בלבד'],a:1,e:'Business Associate Agreement הוא דרישת HIPAA.'},
+  {q:'מה הדרך היעילה ביותר להקטין את היקף ביקורת PCI DSS?',o:['להצפין את הלוגים','לצמצם את סביבת ה־CDE, למשל ב־Tokenization','להוסיף Firewall','לעבור ל־SOC 2'],a:1,e:'כל מערכת שלא נוגעת בנתוני כרטיס יוצאת מההיקף.'}
+ ],
+ terms:['PCI DSS','DORA','HIPAA','GDPR','NIS2']
+},
+{
+ id:'practice', code:'07', title:'תהליכי GRC בפועל', group:'יישום',
+ blurb:'מחזור חיים של תוכנית ציות, מיפוי בקרות בין תקנים, ניהול ספקים, ראיות ומבדקים.',
+ lessons:[
+  {t:'מחזור חיים של תוכנית ציות', h:`
+   <ol>
+    <li><strong>הגדרת היקף</strong>: אילו מערכות, אתרים, תהליכים ואנשים.</li>
+    <li><strong>Gap Analysis</strong>: השוואת המצב הקיים לדרישות. תוצר: רשימת פערים מתועדפת.</li>
+    <li><strong>הערכת סיכונים</strong> ותוכנית טיפול.</li>
+    <li><strong>כתיבת מדיניות ונהלים</strong>. התחילו מ־10 עד 15 מסמכי ליבה, לא מ־60.</li>
+    <li><strong>יישום בקרות</strong> והגדרת בעלים.</li>
+    <li><strong>איסוף ראיות</strong> שוטף, לא שבוע לפני המבדק.</li>
+    <li><strong>מבדק פנימי</strong> וסקר הנהלה.</li>
+    <li><strong>מבדק חיצוני</strong>.</li>
+    <li><strong>ניטור רציף</strong> ושיפור.</li>
+   </ol>
+   <div class="tip">כלי GRC נפוצים (Vanta, Drata, Secureframe, OneTrust, ServiceNow GRC) מאוטמטים את איסוף הראיות ממערכות ענן ו־HR. הם לא מחליפים שיקול דעת.</div>`},
+  {t:'מיפוי בקרות בין מסגרות (Crosswalk)', h:`
+   <p>"תבנה פעם אחת, תציית לרבים". אותה בקרה עונה על כמה מסגרות:</p>
+   <div class="scroll"><table><tr><th>תחום</th><th>ISO 27001:2022</th><th>SOC 2</th><th>NIST CSF 2.0</th></tr>
+    <tr><td>ממשל ומדיניות</td><td><code>5.2, A.5.1</code></td><td><code>CC1.1–CC1.5</code></td><td><code>GV.PO</code></td></tr>
+    <tr><td>הערכת סיכונים</td><td><code>6.1.2, 8.2</code></td><td><code>CC3.1–CC3.4</code></td><td><code>ID.RA</code></td></tr>
+    <tr><td>ניהול הרשאות</td><td><code>A.5.15–A.5.18, A.8.2</code></td><td><code>CC6.1–CC6.3</code></td><td><code>PR.AA</code></td></tr>
+    <tr><td>הדרכה ומודעות</td><td><code>A.6.3</code></td><td><code>CC1.4, CC2.2</code></td><td><code>PR.AT</code></td></tr>
+    <tr><td>הצפנה</td><td><code>A.8.24</code></td><td><code>CC6.1, CC6.7</code></td><td><code>PR.DS</code></td></tr>
+    <tr><td>לוגים וניטור</td><td><code>A.8.15, A.8.16</code></td><td><code>CC7.2</code></td><td><code>DE.CM</code></td></tr>
+    <tr><td>ניהול שינויים</td><td><code>A.8.32</code></td><td><code>CC8.1</code></td><td><code>PR.PS</code></td></tr>
+    <tr><td>ניהול ספקים</td><td><code>A.5.19–A.5.22</code></td><td><code>CC9.2</code></td><td><code>GV.SC</code></td></tr>
+    <tr><td>תגובה לאירועים</td><td><code>A.5.24–A.5.28</code></td><td><code>CC7.3–CC7.5</code></td><td><code>RS.MA</code></td></tr>
+    <tr><td>גיבוי והמשכיות</td><td><code>A.5.29, A.5.30, A.8.13</code></td><td><code>A1.2, A1.3</code></td><td><code>RC.RP</code></td></tr>
+   </table></div>
+   <p>NIST CSF 2.0 (פברואר 2024) הוסיף פונקציה שישית, <strong>Govern</strong>, לצד Identify, Protect, Detect, Respond, Recover.</p>`},
+  {t:'ניהול סיכוני ספקים (TPRM)', h:`
+   <div class="flow"><span>מלאי ספקים</span><b>←</b><span>סיווג קריטיות</span><b>←</b><span>בדיקת נאותות</span><b>←</b><span>חוזה</span><b>←</b><span>ניטור</span><b>←</b><span>סיום התקשרות</span></div>
+   <ul>
+    <li><strong>סיווג</strong>: לפי סוג המידע שהספק נוגע בו ותלות תפעולית. ספק קריטי נבדק לעומק, ספק שולי בשאלון קצר.</li>
+    <li><strong>בדיקת נאותות</strong>: שאלונים (SIG, CAIQ), דוח SOC 2, תעודת ISO 27001 והיקפה, מבדק חדירה.</li>
+    <li><strong>חוזה</strong>: DPA, זכות ביקורת, זמני הודעה על אירוע, מיקום נתונים, החזרה ומחיקה בסיום.</li>
+    <li><strong>ניטור</strong>: סקירה שנתית לספקים קריטיים, מעקב אחר אירועים פומביים.</li>
+   </ul>
+   <div class="note">טעות נפוצה: לקבל תעודת ISO של הספק בלי לבדוק שהשירות שאתם קונים נמצא בהיקף ההסמכה.</div>`},
+  {t:'ראיות ומבדקים', h:`
+   <p>מה הופך ראיה לטובה:</p>
+   <ul>
+    <li><strong>מתוארכת</strong> ושייכת לתקופה הנבדקת.</li>
+    <li><strong>שלמה</strong>: המבקר בוחר דגימה מתוך אוכלוסייה מלאה (למשל כל העובדים שעזבו ברבעון), לא מתוך רשימה שאתם בחרתם.</li>
+    <li><strong>ניתנת לשחזור</strong>: כרטיס במערכת, לוג, ייצוא מהמערכת. עדיף על צילום מסך בלי הקשר.</li>
+   </ul>
+   <h3>שאלות שמבקר ישאל כמעט תמיד</h3>
+   <ul>
+    <li>הראו לי את רשימת העובדים שעזבו, ואת תאריך ביטול ההרשאה של כל אחד.</li>
+    <li>מתי בוצעה סקירת הרשאות אחרונה למערכות הייצור? מי אישר?</li>
+    <li>הראו שינוי בקוד שעלה לייצור. מי אישר אותו ומי ביצע?</li>
+    <li>מתי נבדק שחזור מגיבוי לאחרונה? מה התוצאה?</li>
+    <li>איך מנהלים פגיעויות קריטיות, ומה ה־SLA לתיקון?</li>
+    <li>הראו פרוטוקול של סקר ההנהלה האחרון.</li>
+   </ul>`}
+ ],
+ quiz:[
+  {q:'איזו פונקציה נוספה ב־NIST CSF 2.0?',o:['Identify','Govern','Recover','Monitor'],a:1,e:'Govern נוספה בפברואר 2024 ומרכזת ממשל, אסטרטגיה וניהול שרשרת אספקה.'},
+  {q:'המבקר מבקש דגימת עובדים שעזבו. איך נכון לספק אותה?',o:['לבחור 5 דוגמאות טובות','לתת למבקר את האוכלוסייה המלאה מ־HR והוא בוחר','לשלוח את המדיניות','לשלוח צילום מסך של מסך המשתמשים'],a:1,e:'הדגימה נבחרת ע״י המבקר מתוך אוכלוסייה מלאה ומאומתת.'},
+  {q:'ספק מציג תעודת ISO 27001. מה הדבר הראשון לבדוק?',o:['את צבע התעודה','שהשירות הרלוונטי בתוך היקף ההסמכה ושהתעודה בתוקף','את מספר העובדים שלו','שיש לו גם SOC 3'],a:1,e:'היקף ההסמכה מופיע בתעודה. הוא יכול לכסות רק חלק מהארגון.'},
+  {q:'לקוח אמריקאי דורש SOC 2, ולארגון כבר יש ISO 27001. מה נכון?',o:['ISO 27001 מחליף SOC 2','צריך להתחיל הכל מאפס','אפשר למנף את רוב הבקרות דרך מיפוי, ולהשלים פערים לקראת Type I/II','SOC 2 מיועד רק לבנקים'],a:2,e:'החפיפה גדולה. המיפוי חושף פערים, בעיקר בתיעוד ראיות לאורך תקופה.'}
+ ],
+ terms:['Gap Analysis','TPRM','Crosswalk','Sampling']
+}
+];
+
+const GLOSSARY = [
+ ['ISMS','Information Security Management System','מערכת ניהול אבטחת מידע: מדיניות, תהליכים, תפקידים ובקרות שמנוהלים כמחזור שיפור.'],
+ ['Control','Control','בקרה: אמצעי מנהלתי, טכני או פיזי שמפחית סיכון.'],
+ ['Evidence','Audit Evidence','ראיה: תיעוד שמוכיח שבקרה פעלה בפועל בתקופה הנבדקת.'],
+ ['Risk Owner','Risk Owner','בעל הסיכון: מנהל שאחראי לסיכון ומוסמך להחליט על הטיפול בו.'],
+ ['Risk Appetite','Risk Appetite','תיאבון סיכון: רמת הסיכון שהארגון מוכן לקחת. נקבע ע״י הדירקטוריון.'],
+ ['Inherent Risk','Inherent Risk','סיכון גולמי: רמת הסיכון לפני בקרות.'],
+ ['Residual Risk','Residual Risk','סיכון שיורי: הסיכון שנשאר אחרי הבקרות.'],
+ ['Risk Register','Risk Register','מרשם סיכונים: טבלת כל הסיכונים עם בעלים, ציונים, בקרות וטיפול.'],
+ ['SoA','Statement of Applicability','הצהרת ישימות: מסמך ISO 27001 שמפרט לכל בקרה בנספח A אם היא ישימה ולמה.'],
+ ['Stage 1 / Stage 2','Certification Audit','שני שלבי מבדק ההסמכה: מוכנות ותיעוד, ואז יישום בפועל.'],
+ ['Nonconformity','Nonconformity (Major/Minor)','אי־התאמה: ממצא של אי־עמידה בדרישה. Major מעכב הסמכה.'],
+ ['Management Review','Management Review','סקר הנהלה: ישיבה מתועדת שבה ההנהלה בוחנת את ביצועי ה־ISMS (סעיף 9.3).'],
+ ['Internal Audit','Internal Audit','מבדק פנימי: בדיקה בלתי תלויה של ה־ISMS לפני המבדק החיצוני (סעיף 9.2).'],
+ ['TSC','Trust Services Criteria','חמשת קריטריוני SOC 2: Security, Availability, Processing Integrity, Confidentiality, Privacy.'],
+ ['Type I / Type II','SOC 2 Report Types','Type I בודק תכנון בנקודת זמן. Type II בודק אפקטיביות לאורך תקופה.'],
+ ['CUEC','Complementary User Entity Controls','בקרות שהלקוח של הספק חייב להפעיל בעצמו.'],
+ ['Bridge Letter','Bridge / Gap Letter','הצהרת הנהלת הספק שלא חלו שינויים מהותיים מסוף תקופת הדוח.'],
+ ['Carve-out','Carve-out Method','החרגת ספק משנה (למשל AWS) מדוח SOC 2. הלקוח צריך לבדוק אותו בנפרד.'],
+ ['NIST CSF','NIST Cybersecurity Framework 2.0','מסגרת אמריקאית עם שש פונקציות: Govern, Identify, Protect, Detect, Respond, Recover.'],
+ ['DPO','Data Protection Officer','ממונה הגנת פרטיות. חובה ב־GDPR בתנאים מסוימים, ובישראל מתיקון 13.'],
+ ['Amendment 13','תיקון 13 לחוק הגנת הפרטיות','בתוקף מ־14.8.2025. מרחיב אכיפה ועיצומים ומחייב DPO בגופים מסוימים.'],
+ ['CERT','Computer Emergency Response Team','צוות תגובה לאירועי סייבר. ה־CERT הלאומי בישראל זמין במוקד 119.'],
+ ['PCI DSS','Payment Card Industry Data Security Standard','תקן אבטחה לנתוני כרטיסי אשראי. גרסה 4.0.1, 12 דרישות.'],
+ ['DORA','Digital Operational Resilience Act','רגולציה אירופית לחוסן דיגיטלי במגזר הפיננסי. חלה מ־17.1.2025.'],
+ ['HIPAA','Health Insurance Portability and Accountability Act','חוק אמריקאי להגנה על מידע רפואי (PHI).'],
+ ['GDPR','General Data Protection Regulation','רגולציית הפרטיות של האיחוד האירופי. דיווח 72 שעות, קנס עד 4%.'],
+ ['NIS2','Network and Information Security Directive 2','דירקטיבה אירופית לאבטחת גופים חיוניים וחשובים.'],
+ ['Gap Analysis','Gap Analysis','ניתוח פערים: השוואת המצב הקיים לדרישות התקן.'],
+ ['TPRM','Third-Party Risk Management','ניהול סיכוני ספקים וצדדים שלישיים.'],
+ ['Crosswalk','Control Mapping','מיפוי בקרות בין מסגרות כדי לממש בקרה אחת לכמה דרישות.'],
+ ['Sampling','Audit Sampling','דגימה: המבקר בוחר פריטים מאוכלוסייה מלאה כדי לבדוק בקרה.'],
+ ['DPIA','Data Protection Impact Assessment','הערכת השפעה על פרטיות לפני עיבוד בסיכון גבוה.'],
+ ['BAA','Business Associate Agreement','הסכם HIPAA בין גוף מכוסה לספק שמעבד PHI.'],
+ ['SIEM','Security Information and Event Management','מערכת לאיסוף, קורלציה וניטור לוגים.']
+];
+
+/* ================= STATE ================= */
+const KEY='grc-academy-v1';
+let S={read:{},quiz:{}};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function modProgress(m){
+  const total=m.lessons.length+1;
+  let n=m.lessons.filter((_,i)=>S.read[m.id+':'+i]).length;
+  const best=S.quiz[m.id]; if(best!=null && best>=0.75) n+=1;
+  return n/total;
+}
+function overall(){return MODULES.reduce((a,m)=>a+modProgress(m),0)/MODULES.length;}
+
+/* ================= NAV ================= */
+function renderNav(active){
+  let h='', g='';
+  h+=`<div class="nav-label">ראשי</div>`;
+  h+=`<a href="#home" class="${active==='home'?'on':''}"><span class="code">00</span>לוח בקרה</a>`;
+  MODULES.forEach(m=>{
+    if(m.group!==g){g=m.group;h+=`<div class="nav-label">${g}</div>`;}
+    const p=Math.round(modProgress(m)*100);
+    h+=`<a href="#${m.id}" class="${active===m.id?'on':''}"><span class="code">${m.code}</span>${m.title}<span class="pct ${p===100?'done':''}">${p}%</span></a>`;
+  });
+  h+=`<div class="nav-label">כלים</div>`;
+  h+=`<a href="#glossary" class="${active==='glossary'?'on':''}"><span class="code">Aa</span>מילון מונחים</a>`;
+  h+=`<a href="#exam" class="${active==='exam'?'on':''}"><span class="code">✓</span>מבחן מסכם</a>`;
+  $('#nav').innerHTML=h;
+  const o=Math.round(overall()*100);
+  $('#ovTxt').textContent=o+'% הושלם'; $('#ovBar').style.width=o+'%';
+}
+
+/* ================= HOME ================= */
+function renderHome(){
+  const o=overall(), C=2*Math.PI*70;
+  const next=MODULES.find(m=>modProgress(m)<1);
+  let h=`<div class="stack">
+   <section class="hero">
+    <div class="stack">
+     <span class="eyebrow">GOVERNANCE · RISK · COMPLIANCE</span>
+     <h1>ללמוד GRC מהיסודות ועד מבדק</h1>
+     <p class="lead">שבעה מודולים לפי סדר לימוד מומלץ: יסודות, ניהול סיכונים, ISO 27001, SOC 2, מערך הסייבר והפרטיות בישראל, רגולציה מגזרית ותהליכים בפועל. בכל מודול שיעורים, כרטיסיות מונחים ובוחן.</p>
+     <div class="flow">${next?`<a class="btn primary" href="#${next.id}">${modProgress(next)>0?'להמשיך':'להתחיל'}: ${next.title}</a>`:`<a class="btn primary" href="#exam">למבחן המסכם</a>`}<a class="btn" href="#glossary">מילון מונחים</a></div>
+    </div>
+    <div class="ring" aria-label="התקדמות כוללת">
+     <svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="70" fill="none" stroke="var(--sunk)" stroke-width="14"/><circle cx="80" cy="80" r="70" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-o)}"/></svg>
+     <div class="lbl"><div><b>${Math.round(o*100)}%</b><small>התקדמות כוללת</small></div></div>
+    </div>
+   </section>
+   <h2>המודולים</h2>
+   <div class="grid">`;
+  MODULES.forEach(m=>{
+    const p=modProgress(m), best=S.quiz[m.id];
+    const chip=p===1?'<span class="chip ok">הושלם</span>':p>0?'<span class="chip go">בתהליך</span>':'<span class="chip">טרם התחיל</span>';
+    h+=`<a class="mcard" href="#${m.id}"><div class="row"><span class="eyebrow">מודול ${m.code}</span>${chip}</div>
+      <h3>${m.title}</h3><p>${m.blurb}</p>
+      <div class="row" style="font-size:.82rem;color:var(--muted)"><span>${m.lessons.length} שיעורים · ${m.quiz.length} שאלות</span><span>${best!=null?'ציון: '+Math.round(best*100)+'%':''}</span></div>
+      <div class="mini"><i style="width:${p*100}%"></i></div></a>`;
+  });
+  h+=`</div>
+   <div class="note">מודול נחשב הושלם כשסימנתם את כל השיעורים כנקראו וקיבלתם 75% ומעלה בבוחן. ההתקדמות נשמרת בדפדפן הזה בלבד.</div>
+   <footer>החומר מעודכן לנובמבר 2026 ומיועד ללמידה. לפני החלטה מחייבת, בדקו את נוסח התקן או הרגולציה הרשמי והעדכני.</footer>
+  </div>`;
+  $('#main').innerHTML=h;
+}
+
+/* ================= MODULE ================= */
+let curTab='lessons';
+function renderModule(m){
+  let h=`<div class="stack">
+   <div class="stack" style="gap:8px"><span class="eyebrow">מודול ${m.code} · ${m.group}</span><h1>${m.title}</h1><p class="lead">${m.blurb}</p></div>
+   <div class="tabs" role="tablist">
+    <button data-tab="lessons" class="${curTab==='lessons'?'on':''}">שיעורים</button>
+    <button data-tab="cards" class="${curTab==='cards'?'on':''}">כרטיסיות</button>
+    <button data-tab="quiz" class="${curTab==='quiz'?'on':''}">בוחן${S.quiz[m.id]!=null?' · '+Math.round(S.quiz[m.id]*100)+'%':''}</button>
+   </div><div id="tabBody" class="stack"></div></div>`;
+  $('#main').innerHTML=h;
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{curTab=b.dataset.tab;renderModule(m);});
+  const body=$('#tabBody');
+  if(curTab==='lessons'){
+    m.lessons.forEach((l,i)=>{
+      const k=m.id+':'+i, done=!!S.read[k];
+      const sec=document.createElement('section'); sec.className='lesson';
+      sec.innerHTML=`<div class="lesson-head"><span class="num">${m.code}.${i+1}</span><h2>${l.t}</h2></div>
+        <div class="body">${l.widget==='matrix'?matrixHTML():l.h}</div>
+        <div class="mark"><button class="btn ${done?'done':''}" data-k="${k}">${done?'✓ נקרא':'סמנו כנקרא'}</button></div>`;
+      body.appendChild(sec);
+    });
+    body.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;S.read[k]=!S.read[k];save();renderNav(m.id);
+      b.classList.toggle('done',!!S.read[k]); b.textContent=S.read[k]?'✓ נקרא':'סמנו כנקרא';});
+    const nxt=document.createElement('div'); nxt.className='flow';
+    nxt.innerHTML=`<button class="btn primary" id="toQuiz">לבוחן של המודול</button>`;
+    body.appendChild(nxt); $('#toQuiz').onclick=()=>{curTab='quiz';renderModule(m);window.scrollTo(0,0);};
+    if(m.lessons.some(l=>l.widget==='matrix')) bindMatrix();
+  } else if(curTab==='cards'){
+    const items=GLOSSARY.filter(g=>m.terms.includes(g[0]));
+    body.innerHTML=`<p class="lead">לחצו על כרטיסייה כדי לראות את ההגדרה. נסו להסביר לעצמכם לפני שאתם הופכים.</p><div class="cards">${items.map(cardHTML).join('')}</div>`;
+    bindCards(body);
+  } else {
+    runQuiz(body,m.quiz,score=>{const prev=S.quiz[m.id];if(prev==null||score>prev)S.quiz[m.id]=score;save();renderNav(m.id);},m);
+  }
+}
+
+function cardHTML(g){return `<button class="fc" aria-pressed="false"><span class="t">${esc(g[0])}</span><span class="en">${esc(g[1])}</span><span class="d" hidden>${esc(g[2])}</span><span class="hint">לחצו להגדרה</span></button>`;}
+function bindCards(root){root.querySelectorAll('.fc').forEach(c=>c.onclick=()=>{const on=c.classList.toggle('flip');c.querySelector('.d').hidden=!on;c.querySelector('.hint').hidden=on;c.setAttribute('aria-pressed',on);});}
+
+/* ================= QUIZ ================= */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function runQuiz(root,qs,onDone,m){
+  let right=0, answered=0;
+  root.innerHTML='';
+  qs.forEach((q,qi)=>{
+    const order=shuffle(q.o.map((t,i)=>({t,i})));
+    const d=document.createElement('div'); d.className='q';
+    d.innerHTML=`<span class="qn">שאלה ${qi+1} מתוך ${qs.length}${q.src?' · '+q.src:''}</span><h3>${q.q}</h3>
+      <div class="opts">${order.map(o=>`<button class="opt" data-i="${o.i}">${o.t}</button>`).join('')}</div><div class="explain" hidden></div>`;
+    root.appendChild(d);
+    d.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i, ok=i===q.a; answered++; if(ok) right++;
+      d.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(+x.dataset.i===q.a) x.classList.add('right');});
+      if(!ok) b.classList.add('wrong');
+      const ex=d.querySelector('.explain'); ex.hidden=false; ex.innerHTML=(ok?'<strong style="color:var(--ok)">נכון.</strong> ':'<strong style="color:var(--bad)">לא מדויק.</strong> ')+q.e;
+      if(answered===qs.length){
+        const sc=right/qs.length; onDone(sc);
+        const s=document.createElement('div'); s.className='score';
+        s.innerHTML=`<b>${right}/${qs.length}</b><div style="flex:1;min-width:200px">${sc>=0.75?'עברתם. אפשר להמשיך למודול הבא.':'מתחת ל־75%. חזרו על השיעורים ונסו שוב, השאלות והתשובות מעורבבות מחדש.'}</div>
+          <button class="btn" id="again">נסו שוב</button>${m&&sc>=0.75?nextBtn(m):''}`;
+        root.appendChild(s); s.scrollIntoView({behavior:'smooth',block:'center'});
+        $('#again').onclick=()=>{runQuiz(root,m?qs:shuffle(qs),onDone,m);window.scrollTo(0,0);};
+      }
+    });
+  });
+}
+function nextBtn(m){const i=MODULES.indexOf(m);const n=MODULES[i+1];return n?`<a class="btn primary" href="#${n.id}">למודול הבא: ${n.title}</a>`:`<a class="btn primary" href="#exam">למבחן המסכם</a>`;}
+
+/* ================= RISK MATRIX ================= */
+const LV=['נדירה','לא סבירה','אפשרית','סבירה','כמעט ודאית'];
+const IM=['זניחה','מינורית','בינונית','משמעותית','קריטית'];
+function level(s){return s>=20?['קריטי','var(--r5)','טיפול מיידי, דיווח להנהלה הבכירה']:s>=12?['גבוה','var(--r4)','תוכנית טיפול עם יעד קרוב ובעלים ברור']:s>=6?['בינוני','var(--r3)','טיפול מתוכנן או קבלה מתועדת']:s>=3?['נמוך','var(--r2)','ניטור שגרתי']:['זניח','var(--r1)','קבלה']}
+function matrixHTML(){
+  let cells='';
+  for(let l=5;l>=1;l--){cells+=`<div class="ax">${l}</div>`;for(let i=1;i<=5;i++){const s=l*i;cells+=`<button class="cell" data-l="${l}" data-i="${i}" style="background:${level(s)[1]}" aria-label="סבירות ${l} השפעה ${i}">${s}</button>`;}}
+  cells+=`<div></div>`+[1,2,3,4,5].map(i=>`<div class="ax">${i}</div>`).join('');
+  return `<p>בחרו סבירות והשפעה, או לחצו על תא. הציר האנכי הוא סבירות, האופקי הוא השפעה.</p>
+  <div class="matrix-wrap"><div class="matrix" id="mx">${cells}</div>
+   <div class="ctrl">
+    <label for="mxL">סבירות<select id="mxL">${LV.map((t,i)=>`<option value="${i+1}" ${i===3?'selected':''}>${i+1} · ${t}</option>`).join('')}</select></label>
+    <label for="mxI">השפעה<select id="mxI">${IM.map((t,i)=>`<option value="${i+1}" ${i===4?'selected':''}>${i+1} · ${t}</option>`).join('')}</select></label>
+    <div class="verdict" id="mxV"></div>
+   </div></div>
+   <div class="tip">הספים כאן (3, 6, 12, 20) הם דוגמה. כל ארגון מגדיר אותם במתודולוגיית הסיכונים שלו ומאשר בהנהלה.</div>`;
+}
+function bindMatrix(){
+  const L=$('#mxL'),I=$('#mxI'),V=$('#mxV');
+  function upd(){const l=+L.value,i=+I.value,s=l*i,lv=level(s);
+    document.querySelectorAll('#mx .cell').forEach(c=>c.classList.toggle('sel',+c.dataset.l===l&&+c.dataset.i===i));
+    V.innerHTML=`<div>ציון: <b class="mono" style="font-size:1.4rem">${l} × ${i} = ${s}</b></div><div style="margin-top:6px"><span class="chip" style="background:${lv[1]};color:#14232b">${lv[0]}</span></div><div style="margin-top:8px">${lv[2]}</div>`;}
+  L.onchange=upd; I.onchange=upd;
+  document.querySelectorAll('#mx .cell').forEach(c=>c.onclick=()=>{L.value=c.dataset.l;I.value=c.dataset.i;upd();});
+  upd();
+}
+
+/* ================= GLOSSARY ================= */
+function renderGlossary(){
+  $('#main').innerHTML=`<div class="stack"><div class="stack" style="gap:8px"><span class="eyebrow">${GLOSSARY.length} מונחים</span><h1>מילון מונחים</h1><p class="lead">חפשו בעברית או באנגלית. לחצו על כרטיסייה להגדרה.</p></div>
+   <input type="search" id="gq" placeholder="חיפוש: SoA, סיכון, פרטיות..." aria-label="חיפוש מונח"><div class="cards" id="gl"></div></div>`;
+  const draw=()=>{const q=$('#gq').value.trim().toLowerCase();
+    const it=GLOSSARY.filter(g=>!q||g.join(' ').toLowerCase().includes(q));
+    $('#gl').innerHTML=it.length?it.map(cardHTML).join(''):'<p class="lead">לא נמצא מונח. נסו מילה אחרת.</p>'; bindCards($('#gl'));};
+  $('#gq').oninput=draw; draw();
+}
+
+/* ================= EXAM ================= */
+function renderExam(){
+  const pool=shuffle(MODULES.flatMap(m=>m.quiz.map(q=>Object.assign({src:m.title},q)))).slice(0,15);
+  $('#main').innerHTML=`<div class="stack"><div class="stack" style="gap:8px"><span class="eyebrow">15 שאלות אקראיות מכל המודולים</span><h1>מבחן מסכם</h1>
+   <p class="lead">${S.quiz.exam!=null?'הציון הטוב ביותר שלכם: '+Math.round(S.quiz.exam*100)+'%. ':''}כל כניסה מגרילה סט שאלות חדש.</p></div><div id="ex" class="stack"></div></div>`;
+  runQuiz($('#ex'),pool,sc=>{if(S.quiz.exam==null||sc>S.quiz.exam)S.quiz.exam=sc;save();},null);
+  const again=()=>{};
+}
+
+/* ================= ROUTER ================= */
+function route(){
+  const id=(location.hash||'#home').slice(1);
+  const m=MODULES.find(x=>x.id===id);
+  if(m){ if(route.last!==id) curTab='lessons'; renderModule(m); }
+  else if(id==='glossary') renderGlossary();
+  else if(id==='exam') renderExam();
+  else renderHome();
+  renderNav(m?m.id:(id==='glossary'||id==='exam'?id:'home'));
+  if(route.last!==id) window.scrollTo(0,0);
+  route.last=id;
+}
+window.addEventListener('hashchange',route);
+route();
+</script>
